@@ -257,32 +257,71 @@ def ai_chat(message):
     3. Поддерживай интригу, шути.
     4. Вставляй фразы на {target_lang} с переводом на {native_lang}.
     """
-    bot.send_chat_action(message.chat.id, 'typing')
-try:
-    # Пытаемся отправить запрос
-    response = ai_client.models.generate_content(
-        model='gemini-3.1-flash-lite', 
-        contents=message.text,
-        config=genai_types.GenerateContentConfig(system_instruction=system_instruction)
-    )
-    bot.reply_to(message, response.text)
-except Exception as e:
-    error_text = str(e)
-    if "503" in error_text or "UNAVAILABLE" in error_text:
-        import time
-        time.sleep(2)
-        try:
-            response = ai_client.models.generate_content(
-                model='gemini-3.1-flash-lite', 
-                contents=message.text,
-                config=genai_types.GenerateContentConfig(system_instruction=system_instruction)
+    @bot.message_handler(func=lambda msg: msg.content_type == 'text' and get_user(msg.chat.id) and get_user(msg.chat.id)[2] == 'active')
+def ai_chat(message):
+    if message.text in ["🔄 Начать заново", "🆘 Связь с админом"]:
+        return
+
+    user_id = message.chat.id
+    user = get_user(user_id)
+    
+    # Проверка подписки
+    sub_end_date_str = user[8]
+    if sub_end_date_str:
+        sub_end_date = datetime.strptime(sub_end_date_str, "%Y-%m-%d")
+        if datetime.now() > sub_end_date:
+            update_user(user_id, is_vip=0, state='wait_payment')
+            bot.send_message(
+                user_id, 
+                "😔 Ой, срок твоей подписки закончился!\n\nЧтобы продолжить, оплати 10 сомони и отправь новый чек.\n\n" + PAYMENT_REQUISITES,
+                reply_markup=get_main_menu(),
+                parse_mode="Markdown"
             )
-            bot.reply_to(message, response.text)
-        except:
-            bot.reply_to(message, "Ой, у меня на секунду зависли мысли... 🥺 Google сейчас перегружен. Попробуй написать мне еще раз через минутку!")
-    else:
-        bot.reply_to(message, f"⚠️ Ошибка: {e}")
-    print(f"ОШИБКА ИИ: {e}")
+            return
+
+    gender = user[3]
+    want_girl = user[4]
+    topic = user[5]
+    native_lang = user[6]
+    target_lang = user[7]
+
+    system_instruction = f"""
+    Ты — живой, интересный собеседник и репетитор.
+    Пользователь: {gender}. Родной язык: {native_lang}. Учит: {target_lang}.
+    Тема: {topic}. Общение как с девушкой: {want_girl}.
+    
+    ПРАВИЛА:
+    1. Общайся живо, с эмодзи.
+    2. Если "как с девушкой" = Да, используй женский род, кокетничай.
+    3. Поддерживай интригу, шути.
+    4. Вставляй фразы на {target_lang} с переводом на {native_lang}.
+    """
+
+    bot.send_chat_action(message.chat.id, 'typing')
+    try:
+        response = ai_client.models.generate_content(
+            model='gemini-3.1-flash-lite', 
+            contents=message.text,
+            config=genai_types.GenerateContentConfig(system_instruction=system_instruction)
+        )
+        bot.reply_to(message, response.text)
+    except Exception as e:
+        error_text = str(e)
+        if "503" in error_text or "UNAVAILABLE" in error_text:
+            import time
+            time.sleep(2)
+            try:
+                response = ai_client.models.generate_content(
+                    model='gemini-3.1-flash-lite', 
+                    contents=message.text,
+                    config=genai_types.GenerateContentConfig(system_instruction=system_instruction)
+                )
+                bot.reply_to(message, response.text)
+            except:
+                bot.reply_to(message, "Ой, у меня на секунду зависли мысли... 🥺 Google перегружен. Попробуй написать еще раз через минутку!")
+        else:
+            bot.reply_to(message, f"⚠️ Ошибка: {e}")
+        print(f"ОШИБКА ИИ: {e}")
             # Если и со второго раза не вышло — пишем
 # ----------------- ЗАПУСК -----------------
 if __name__ == "__main__":
