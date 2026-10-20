@@ -267,6 +267,7 @@ def ai_chat(message):
         )
         bot.reply_to(message, response.text)
     except Exception as e:
+        bot.reply_to(message, f"⚠️ Ошибка: {e}")
         print(f"ОШИБКА ИИ: {e}")
 
 # ----------------- ЗАПУСК -----------------
