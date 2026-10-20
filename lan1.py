@@ -257,19 +257,36 @@ def ai_chat(message):
     3. Поддерживай интригу, шути.
     4. Вставляй фразы на {target_lang} с переводом на {native_lang}.
     """
-
-    bot.send_chat_action(message.chat.id, 'typing')
-    try:
-        response = ai_client.models.generate_content(
-            model='gemini-3.8-flash', 
-            contents=message.text,
-            config=genai_types.GenerateContentConfig(system_instruction=system_instruction)
-        )
-        bot.reply_to(message, response.text)
-    except Exception as e:
+bot.send_chat_action(message.chat.id, 'typing')
+try:
+    # Пытаемся отправить запрос
+    response = ai_client.models.generate_content(
+        model='gemini-3.1-flash-lite', 
+        contents=message.text,
+        config=genai_types.GenerateContentConfig(system_instruction=system_instruction)
+    )
+    bot.reply_to(message, response.text)
+except Exception as e:
+    error_text = str(e)
+    # Если это ошибка перегрузки (503), пробуем еще раз через 2 секунды
+    if "503" in error_text or "UNAVAILABLE" in error_text:
+        import time
+        time.sleep(2) # Ждем 2 секунды
+        try:
+            response = ai_client.models.generate_content(
+                model='gemini-3.8-flash', 
+                contents=message.text,
+                config=genai_types.GenerateContentConfig(system_instruction=system_instruction)
+            )
+            bot.reply_to(message, response.text)
+        except:
+            # Если и со второго раза не вышло — пишем красивое сообщение
+            bot.reply_to(message, "Ой, у меня на секунду зависли мысли... 🥺 Google сейчас перегружен. Попробуй написать мне еще раз через минутку!")
+    else:
+        # Если ошибка другая (например, ключ неверный), выводим её
         bot.reply_to(message, f"⚠️ Ошибка: {e}")
-        print(f"ОШИБКА ИИ: {e}")
-
+    print(f"ОШИБКА ИИ: {e}")
+            # Если и со второго раза не вышло — пишем
 # ----------------- ЗАПУСК -----------------
 if __name__ == "__main__":
     print("Бот успешно запущен!")
