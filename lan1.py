@@ -268,22 +268,19 @@ try:
     bot.reply_to(message, response.text)
 except Exception as e:
     error_text = str(e)
-    # Если это ошибка перегрузки (503), пробуем еще раз через 2 секунды
     if "503" in error_text or "UNAVAILABLE" in error_text:
         import time
-        time.sleep(2) # Ждем 2 секунды
+        time.sleep(2)
         try:
             response = ai_client.models.generate_content(
-                model='gemini-3.8-flash', 
+                model='gemini-3.1-flash-lite', 
                 contents=message.text,
                 config=genai_types.GenerateContentConfig(system_instruction=system_instruction)
             )
             bot.reply_to(message, response.text)
         except:
-            # Если и со второго раза не вышло — пишем красивое сообщение
             bot.reply_to(message, "Ой, у меня на секунду зависли мысли... 🥺 Google сейчас перегружен. Попробуй написать мне еще раз через минутку!")
     else:
-        # Если ошибка другая (например, ключ неверный), выводим её
         bot.reply_to(message, f"⚠️ Ошибка: {e}")
     print(f"ОШИБКА ИИ: {e}")
             # Если и со второго раза не вышло — пишем
