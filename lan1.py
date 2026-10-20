@@ -257,7 +257,7 @@ def ai_chat(message):
     3. Поддерживай интригу, шути.
     4. Вставляй фразы на {target_lang} с переводом на {native_lang}.
     """
-bot.send_chat_action(message.chat.id, 'typing')
+    bot.send_chat_action(message.chat.id, 'typing')
 try:
     # Пытаемся отправить запрос
     response = ai_client.models.generate_content(
