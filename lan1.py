@@ -20,13 +20,14 @@ from datetime import datetime, timedelta
 # ================= НАСТРОЙКИ =================
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 ADMIN_ID = int(os.environ.get("ADMIN_ID", ))
+ADMIN_USERNAME = "@Suyeta97"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 PAYMENT_REQUISITES = """
 💳 **Реквизиты для оплаты подписки:**
 
 Карта / : `05 317 9797`
-Банк: душанбе сити
+Банк: душанбе сити, эсхата
 Сумма: 10 сомони / месяц
 
 После оплаты отправьте **скриншот чека** прямо в этот чат!
