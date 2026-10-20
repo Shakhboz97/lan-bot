@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 ADMIN_ID = int(os.environ.get("ADMIN_ID", ))
 ADMIN_USERNAME = "@Suyeta97"
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "2b72df759c93d4350c59799248914725")
 
 PAYMENT_REQUISITES = """
 💳 **Реквизиты для оплаты подписки:**
